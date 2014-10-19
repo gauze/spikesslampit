@@ -1,0 +1,156 @@
+#include <vectrex.h>
+#include "shapes.h"
+
+#define MAX_BRIGHTNESS (0x7f)
+
+/* nothing wrong with global */ 
+char coatroom = 'n';
+
+int main(void)
+{
+	char dir = 'G';
+	int x=0, i;
+	signed char spike_x = 0;
+	signed char spike_y = 0;
+	setup();
+
+	for(;;)
+	{
+		wait_recal();
+		sound_update();
+		sound_output();
+
+		intensity(MAX_BRIGHTNESS);
+	//	draw_core();
+		set_scale(195);
+		zero_beam();
+		draw_vector_list_pattern(Pit);
+
+		set_scale(60);
+
+		for (i = 0; i < 5 ; i++)
+		{
+			move_to(-30,-30);
+			draw_vector_list(Switches);
+		}
+
+// 		end drawcore
+		zero_beam();
+//		move_to(19,-76);
+		if (x >= 195)
+			dir = 'S';
+		if (x <= 0)
+			dir = 'G';
+		if ( dir == 'G' )	
+			x++;
+		else
+			x--;
+		
+		set_scale(x);
+		draw_vector_list_pattern(Core);
+//		#define DRAW_SCALE 190
+//		set_scale(DRAW_SCALE);
+//		draw_pit();
+//		draw_switch(coatroom);
+		draw_spud();
+//		draw_deadspike();
+
+//		#define MOVE_SCALE 20
+		set_scale(200);
+		zero_beam();
+		move_to(spike_x, spike_y);
+		#define DRAW_SCALE 20 
+		set_scale(DRAW_SCALE);
+		draw_vector_list_pattern(Spike);
+
+		/* joystick shit here to end */
+		if (joystick1_x < 0)
+			spike_x-=3;
+		else if (joystick1_x > 0)
+				spike_x+=3;
+		if (joystick1_y < 0)
+			spike_y-=3;
+		else if (joystick1_y > 0)
+				spike_y+=3;
+	
+		joy_digital();
+	}
+	return 0; /* should never reach this */
+}
+
+
+void sound_update(void)
+{
+	;
+}
+
+void sound_output(void)
+{
+	;
+}
+
+
+void draw_switch(char x)
+{
+		#define SWITCH_SCALE 20
+		set_scale(SWITCH_SCALE);
+		move_to(-50,-50);
+		draw_vector_list(Switches);
+		move_to(-100,-75);
+		draw_vector_list(Switches);
+		return;
+}
+
+void draw_pit(void)
+{
+		#define DRAW_SCALE 190
+		set_scale(DRAW_SCALE);
+		draw_vector_list_pattern(Pit);
+		return;
+}
+
+void draw_core(void)
+{
+		static int x=0;
+		x++;
+		if (x > 180)
+			x=0;
+		#define DRAW_SCALE 40
+		set_scale(x);
+		move_to(40,-100);
+		draw_vector_list(Core);
+		return;
+}
+
+void draw_spud(void)
+{
+		#define DRAW_SCALE 30 
+		set_scale(DRAW_SCALE);
+		zero_beam();
+		move_to(150,-100);
+		draw_vector_list_pattern(Spud);
+		return;
+}
+
+void draw_deadspike(void)
+{
+		#define MOVE_SCALE 20
+		move_to(200,100);
+		#define DRAW_SCALE 40 
+		set_scale(DRAW_SCALE);
+		draw_vector_list_pattern(Dead_Spike);
+		return;
+}
+
+void setup(void)
+{
+	enable_joystick_1x();
+	enable_joystick_1y();
+	disable_joystick_2x();
+	disable_joystick_2y();
+	joy_digital();
+	read_buttons();
+	wait_recal();
+	read_buttons();
+	wait_recal();
+}
